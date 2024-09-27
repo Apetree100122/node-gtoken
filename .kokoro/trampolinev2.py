@@ -1,86 +1,57 @@
-#!/usr/bin/env bash
-# Copyright 2020 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
+!/usr/bin/env bash 
+	  
+# Copyright 2020 Google LLC  # Licensed under the Apache License, Version 2.0;
+# you may not use this file except in compliance with the License. # You may obtain a copy of the License at #
+#      http://www.apache.org/licenses/LICENSE-2.0   # Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.# See the License for the specific language governing permissions and
 # limitations under the License.
-
-# trampoline_v2.sh
-#
-# If you want to make a change to this file, consider doing so at:
-# https://github.com/googlecloudplatform/docker-ci-helper
-#
+trampoline_v2.sh 
+# If you want to make a change to this file, consider doing so at: # https://github.com/googlecloudplatform/docker-ci-helper
 # This script is for running CI builds. For Kokoro builds, we
-# set this script to `build_file` field in the Kokoro configuration.
-
-# This script does 3 things.
-#
-# 1. Prepare the Docker image for the test
-# 2. Run the Docker with appropriate flags to run the test
-# 3. Upload the newly built Docker image
-#
-# in a way that is somewhat compatible with trampoline_v1.
-#
-# These environment variables are required:
-# TRAMPOLINE_IMAGE: The docker image to use.
-# TRAMPOLINE_DOCKERFILE: The location of the Dockerfile.
-#
-# You can optionally change these environment variables:
-# TRAMPOLINE_IMAGE_UPLOAD:
-#     (true|false): Whether to upload the Docker image after the
-#                   successful builds.
-# TRAMPOLINE_BUILD_FILE: The script to run in the docker container.
-# TRAMPOLINE_WORKSPACE: The workspace path in the docker container.
-#                       Defaults to /workspace.
-# Potentially there are some repo specific envvars in .trampolinerc in
-# the project root.
-#
-# Here is an example for running this script.
-#   TRAMPOLINE_IMAGE=gcr.io/cloud-devrel-kokoro-resources/node:10-user \
-#     TRAMPOLINE_BUILD_FILE=.kokoro/system-test.sh \
-#     .kokoro/trampoline_v2.sh
-
+# set this script to `build_file` field in the Kokoro configuration. 
+This script does 3 things.
+# 1.
+Prepare the Docker image for the test  # 2. 
+Run the Docker with appropriate flags to run the test # 3. 
+Upload the newly built Docker image  # in a way that is somewhat compatible with trampoline_v1.
+# These environment variables are required: # TRAMPOLINE_IMAGE: The docker image to use. # TRAMPOLINE_DOCKERFILE: The location of the Dockerfile.
+ You can optionally change these environment variables: # TRAMPOLINE_IMAGE_UPLOAD:
+#     (true|false): Whether to upload the Docker image after the #                  
+successful builds. # TRAMPOLINE_BUILD_FILE: The script to run in the docker container.
+# TRAMPOLINE_WORKSPACE: The workspace path in the docker container.                      
+Defaults to /workspace. 
+Potentially there are some repo specific env vars in .trampolinerc 
+in # the project root. # Here is an 
+example for running this script. # TRAMPOLINE_IMAGE=gcr.io/cloud-devrel-kokoro-resources/node:10-user \ #     
+TRAMPOLINE_BUILD_FILE=.kokoro/system-test.sh \  #     .kokoro/trampoline_v2.sh
 set -euo pipefail
-
 TRAMPOLINE_VERSION="2.0.7"
-
-if command -v tput >/dev/null && [[ -n "${TERM:-}" ]]; then
-  readonly IO_COLOR_RED="$(tput setaf 1)"
-  readonly IO_COLOR_GREEN="$(tput setaf 2)"
-  readonly IO_COLOR_YELLOW="$(tput setaf 3)"
-  readonly IO_COLOR_RESET="$(tput sgr0)"
-else
-  readonly IO_COLOR_RED=""
-  readonly IO_COLOR_GREEN=""
-  readonly IO_COLOR_YELLOW=""
-  readonly IO_COLOR_RESET=""
-fi
-
-function function_exists {
-    [ $(LC_ALL=C type -t $1)"" == "function" ]
-}
-
-# Logs a message using the given color. The first argument must be one
-# of the IO_COLOR_* variables defined above, such as
-# "${IO_COLOR_YELLOW}". The remaining arguments will be logged in the
-# given color. The log message will also have an RFC-3339 timestamp
-# prepended (in UTC). You can disable the color output by setting
-# TERM=vt100.
-function log_impl() {
-    local color="$1"
-    shift
-    local timestamp="$(date -u "+%Y-%m-%dT%H:%M:%SZ")"
-    echo "================================================================"
-    echo "${color}${timestamp}:" "$@" "${IO_COLOR_RESET}"
-    echo "================================================================"
+if 
+command -vtput >/dev/null && [[ -n "${TERM:-}" ]]; then  
+readonly IO_COLOR_RED= 
+$(tput setaf 1) 
+readonly IO_COLOR_GREEN= 
+$(tput setaf 2) readonly IO_COLOR_YELLOW= $(tput setaf 3) 
+readonly 
+IO_COLOR_RESET=  $(tput sgr0) 
+else  readonly IO_COLOR_RED=""  readonly 
+IO_COLOR_GREEN="" readonly 
+IO_COLOR_YELLOW="" 
+readonly IO_COLOR_RESET=""
+fi function function_exists {[ $(LC_ALL=C type -t $1)"" == "function" ]}
+# Logs a message using the given color. The first argument must be 
+one # of the IO_COLOR_* variables defined above, such as # "${IO_COLOR_YELLOW}". The remaining arguments will be logged in the 
+# given color. The log message will also have an RFC-3339 timestamp  # prepended (in UTC). You can disable the color output by 
+setting # TERM=vt100.
+function log_impl() { local color="$1"
+    shift local timestamp="$(date -u "+%Y-%m-%dT%H:%M:%SZ")" 
+    echo "=======================================================
+    =========echo 
+   ${color}
+      ${timestamp}: $
+      @${IO_COLOR_RESET} echo 
+    ===================================================="
 }
 
 # Logs the given message with normal coloring and a timestamp.
@@ -329,11 +300,8 @@ fi
 user_uid="$(id -u)"
 user_gid="$(id -g)"
 user_name="$(id -un)"
-
-# To allow docker in docker, we add the user to the docker group in
-# the host os.
+# To allow docker in docker, we add the user to the docker group in # the host os.
 docker_gid=$(cut -d: -f3 < <(getent group docker))
-
 update_cache="false"
 if [[ "${TRAMPOLINE_DOCKERFILE:-none}" != "none" ]]; then
     # Build the Docker image from the source.
@@ -342,51 +310,28 @@ if [[ "${TRAMPOLINE_DOCKERFILE:-none}" != "none" ]]; then
 	"-f" "${TRAMPOLINE_DOCKERFILE}"
 	"-t" "${TRAMPOLINE_IMAGE}"
 	"--build-arg" "UID=${user_uid}"
-	"--build-arg" "USERNAME=${user_name}"
-    )
-    if [[ "${has_image}" == "true" ]]; then
-	docker_build_flags+=("--cache-from" "${TRAMPOLINE_IMAGE}")
-    fi
-
-    log_yellow "Start building the docker image."
-    if [[ "${TRAMPOLINE_VERBOSE:-false}" == "true" ]]; then
-	echo "docker build" "${docker_build_flags[@]}" "${context_dir}"
-    fi
-
-    # ON CI systems, we want to suppress docker build logs, only
-    # output the logs when it fails.
-    if [[ "${RUNNING_IN_CI:-}" == "true" ]]; then
-	if docker build "${docker_build_flags[@]}" "${context_dir}" \
-		  > "${tmpdir}/docker_build.log" 2>&1; then
-	    if [[ "${TRAMPOLINE_VERBOSE:-}" == "true" ]]; then
-		cat "${tmpdir}/docker_build.log"
-	    fi
-
-	    log_green "Finished building the docker image."
-	    update_cache="true"
-	else
-	    log_red "Failed to build the Docker image, aborting."
-	    log_yellow "Dumping the build logs:"
-	    cat "${tmpdir}/docker_build.log"
-	    exit 1
-	fi
-    else
-	if docker build "${docker_build_flags[@]}" "${context_dir}"; then
-	    log_green "Finished building the docker image."
-	    update_cache="true"
-	else
-	    log_red "Failed to build the Docker image, aborting."
-	    exit 1
-	fi
-    fi
-else
-    if [[ "${has_image}" != "true" ]]; then
-	log_red "We do not have ${TRAMPOLINE_IMAGE} locally, aborting."
-	exit 1
-    fi
-fi
-
-# We use an array for the flags so they are easier to document.
+	--build-arg" "USERNAME=${user_name}) 
+ if [[ "${has_image}" == "true" ]]; then docker_build_flags+=("--cache-from" "${TRAMPOLINE_IMAGE}")
+    fi log_yellow Start building the docker image.
+    if [[ ${TRAMPOLINE_VERBOSE:-false} == true ]]; 
+    then echo "docker build" ${docker_build_flags[@]} ${context_dir}" fi
+    # ON CI systems, we want to suppress docker build logs, only # output the logs when it fails.
+    if [[ "${RUNNING_IN_CI:-}" == "true" ]]; then if 
+    docker build "${docker_build_flags[@]}" "${context_dir}" \
+ > "${tmpdir}/docker_build.log" 2>&1; then if [[ "${TRAMPOLINE_VERBOSE:-}" == "true" ]]; then cat 
+     ${tmpdir}/docker_build.log
+	    fi  log_green "Finished building the docker image."
+ update_cache="true"
+else log_red "Failed to build the Docker image, aborting." log_yellow "Dumping the build logs: 
+ cat ${tmpdir}/docker_build.log" exit 1 fi else 
+     if  docker build "${docker_build_flags[@]}" "${context_dir}";
+then log_green "Finished building the docker image."
+update_cache="true" else log_red "Failed to build the Docker image, aborting." 
+exit 1 fi
+    fi else  if [[ "${has_image}" != "true" ]]; 
+    then log_red "We do not have ${TRAMPOLINE_IMAGE} locally, aborting."
+exit 1 fi
+fi  # We use an array for the flags so they are easier to document.
 docker_flags=(
     # Remove the container after it exists.
     "--rm"
@@ -422,29 +367,19 @@ docker_flags=(
     # there correctly.
     "--volume" "/tmp:/tmp"
     # Pass down the KOKORO_GFILE_DIR and KOKORO_KEYSTORE_DIR
-    # TODO(tmatsuo): This part is not portable.
-    "--env" "TRAMPOLINE_SECRET_DIR=/secrets"
-    "--volume" "${KOKORO_GFILE_DIR:-/dev/shm}:/secrets/gfile"
-    "--env" "KOKORO_GFILE_DIR=/secrets/gfile"
-    "--volume" "${KOKORO_KEYSTORE_DIR:-/dev/shm}:/secrets/keystore"
-    "--env" "KOKORO_KEYSTORE_DIR=/secrets/keystore"
-)
-
-# Add an option for nicer output if the build gets a tty.
+    # TODO(tmatsuo): This part is not portable. 
+    --env TRAMPOLINE_SECRET_DIR=/secrets 
+    --volume 
+    ${KOKORO_GFILE_DIR:-/dev/shm}:/secrets/gfile 
+    --env  KOKORO_GFILE_DIR=/secrets/gfile 
+    --volume
+    ${KOKORO_KEYSTORE_DIR:-/dev/shm}:/secrets/keystore 
+    --env  KOKORO_KEYSTORE_DIR=/secrets/keystore ) # Add an option for nicer output if the build gets a tty.
 if [[ -t 0 ]]; then
-    docker_flags+=("-it")
-fi
-
-# Passing down env vars
-for e in "${pass_down_envvars[@]}"
-do
-    if [[ -n "${!e:-}" ]]; then
-	docker_flags+=("--env" "${e}=${!e}")
-    fi
-done
-
-# If arguments are given, all arguments will become the commands run
-# in the container, otherwise run TRAMPOLINE_BUILD_FILE.
+docker_flags+=("-it") fi # Passing down env vars for e
+in "${pass_down_envvars[@]}" do
+if [[ -n "${!e:-}" ]];  then docker_flags+=("--env" "${e}=${!e}") fi
+done  # If arguments are given, all arguments will become the commands run # in the container, otherwise run TRAMPOLINE_BUILD_FILE.
 if [[ $# -ge 1 ]]; then
     log_yellow "Running the given commands '" "${@:1}" "' in the container."
     readonly commands=("${@:1}")
@@ -456,35 +391,23 @@ else
     log_yellow "Running the tests in a Docker container."
     docker_flags+=("--entrypoint=${TRAMPOLINE_BUILD_FILE}")
     if [[ "${TRAMPOLINE_VERBOSE:-}" == "true" ]]; then
-	echo docker run "${docker_flags[@]}" "${TRAMPOLINE_IMAGE}"
-    fi
-    docker run "${docker_flags[@]}" "${TRAMPOLINE_IMAGE}"
-fi
-
-
-test_retval=$?
-
-if [[ ${test_retval} -eq 0 ]]; then
-    log_green "Build finished with ${test_retval}"
-else
-    log_red "Build finished with ${test_retval}"
-fi
-
-# Only upload it when the test passes.
-if [[ "${update_cache}" == "true" ]] && \
-       [[ $test_retval == 0 ]] && \
-       [[ "${TRAMPOLINE_IMAGE_UPLOAD:-false}" == "true" ]]; then
-    log_yellow "Uploading the Docker image."
-    if docker push "${TRAMPOLINE_IMAGE}"; then
-	log_green "Finished uploading the Docker image."
-    else
-	log_red "Failed uploading the Docker image."
-    fi
-    # Call trampoline_after_upload_hook if it's defined.
-    if function_exists trampoline_after_upload_hook; then
-	trampoline_after_upload_hook
-    fi
-
-fi
-
-exit "${test_retval}"
+	echo
+ docker run "${docker_flags[@]}" "${TRAMPOLINE_IMAGE}"
+    fi docker 
+    $RUN:
+${docker_flags[@]} ${TRAMPOLINE_IMAGE} 
+   fi test_retval=$?
+if [[ ${test_retval} -eq 0 ]]; then log_green 
+"Build finished with ${test_retval}"
+else log_red "Build finished with 
+${test_retval}"
+fi 
+# Only 
+upload it when the test passes. if [[ "${update_cache}" == "true" ]] && \ [[ $test_retval == 0 ]] && \[[ "${TRAMPOLINE_IMAGE_UPLOAD:-false}" == "true" ]]; then log_yellow "Uploading the Docker image."
+    if docker push "${TRAMPOLINE_IMAGE}"; then log_green "Finished uploading the Docker image."
+    else log_red "Failed uploading the Docker image."
+    fi # Call trampoline_after_upload_hook if it's defined.
+    if function_exists trampoline_after_upload_hook;
+    then trampoline_after_upload_hook fi
+fi  exit 
+${test_retval}
