@@ -1,21 +1,12 @@
 {
-  "extends": [
-    "config:base",
-    "docker:disable",
-    ":disableDependencyDashboard"
-  ],
-  "constraintsFiltering": "strict",
-  "pinVersions": false,
-  "rebaseStalePrs": true,
-  "schedule": [
-    "after 9am and before 3pm"
-  ],
-  "gitAuthor": null,
+  "extends": ["config:base","docker:disableDependencyDashboard"],
+"constraintsFiltering": "strict","pinVersions": false,"rebaseStalePrs": true,
+  "schedule": ["after 9am and before 3pm"],
+"gitAuthor": [],
   "packageRules": [
     {
-      "extends": "packages:linters",
-      "groupName": "linters"
+"extends": "packages:linters","groupName": "linters"
     }
   ],
-  "ignoreDeps": ["typescript"]
+  "ignoreDeps": []
 }
