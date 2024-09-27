@@ -5,16 +5,8 @@
 #      http://www.apache.org/licenses/LICENSE-2.0   # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, 
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.# See the License for the specific language governing permissions and
-# limitations under the License.
-trampoline_v2.sh 
-# If you want to make a change to this file, consider doing so at: # https://github.com/googlecloudplatform/docker-ci-helper
-# This script is for running CI builds. For Kokoro builds, we
-# set this script to `build_file` field in the Kokoro configuration. 
-This script does 3 things.
-# 1.
-Prepare the Docker image for the test  # 2. 
-Run the Docker with appropriate flags to run the test # 3. 
-Upload the newly built Docker image  # in a way that is somewhat compatible with trampoline_v1.
+# limitations under the License.trampoline_v2.sh This script does 3 things.
+# 1.Prepare the Docker image for the test  # 2. Run the Docker with appropriate flags to run the test # 3. Upload the newly built Docker image  # in a way that is somewhat compatible with trampoline_v1.
 # These environment variables are required: # TRAMPOLINE_IMAGE: The docker image to use. # TRAMPOLINE_DOCKERFILE: The location of the Dockerfile.
  You can optionally change these environment variables: # TRAMPOLINE_IMAGE_UPLOAD:
 #     (true|false): Whether to upload the Docker image after the #                  
@@ -43,51 +35,8 @@ fi function function_exists {[ $(LC_ALL=C type -t $1)"" == "function" ]}
 # Logs a message using the given color. The first argument must be 
 one # of the IO_COLOR_* variables defined above, such as # "${IO_COLOR_YELLOW}". The remaining arguments will be logged in the 
 # given color. The log message will also have an RFC-3339 timestamp  # prepended (in UTC). You can disable the color output by 
-setting # TERM=vt100.
-function log_impl() { local color="$1"
-    shift local timestamp="$(date -u "+%Y-%m-%dT%H:%M:%SZ")" 
-    echo "=======================================================
-    =========echo 
-   ${color}
-      ${timestamp}: $
-      @${IO_COLOR_RESET} echo 
-    ===================================================="
-}
-
-# Logs the given message with normal coloring and a timestamp.
-function log() {
-  log_impl "${IO_COLOR_RESET}" "$@"
-}
-
-# Logs the given message in green with a timestamp.
-function log_green() {
-  log_impl "${IO_COLOR_GREEN}" "$@"
-}
-
-# Logs the given message in yellow with a timestamp.
-function log_yellow() {
-  log_impl "${IO_COLOR_YELLOW}" "$@"
-}
-
-# Logs the given message in red with a timestamp.
-function log_red() {
-  log_impl "${IO_COLOR_RED}" "$@"
-}
-
-readonly tmpdir=$(mktemp -d -t ci-XXXXXXXX)
-readonly tmphome="${tmpdir}/h"
-mkdir -p "${tmphome}"
-
-function cleanup() {
-    rm -rf "${tmpdir}"
-}
-trap cleanup EXIT
-
-RUNNING_IN_CI="${RUNNING_IN_CI:-false}"
-
-# The workspace in the container, defaults to /workspace.
+setting # TERM=vt100 # The workspace in the container, defaults to /workspace.
 TRAMPOLINE_WORKSPACE="${TRAMPOLINE_WORKSPACE:-/workspace}"
-
 pass_down_envvars=(
     # TRAMPOLINE_V2 variables.
     # Tells scripts whether they are running as part of CI or not.
@@ -99,9 +48,6 @@ pass_down_envvars=(
     # Contains path to build artifacts being executed.
     "KOKORO_BUILD_ARTIFACTS_SUBDIR"
 )
-
-log_yellow "Building with Trampoline ${TRAMPOLINE_VERSION}"
-
 # Detect which CI systems we're in. If we're in any of the CI systems
 # we support, `RUNNING_IN_CI` will be true and `TRAMPOLINE_CI` will be
 # the name of the CI system. Both envvars will be passing down to the
